@@ -3,12 +3,12 @@ const path = require('path')
 module.exports = {
   mode: 'development',
   devServer: {
-    static: './dev'
+    static: './demo'
   },
-  entry: './dev/app.js',
+  entry: './demo/app.js',
   output: {
     filename: 'app.dist.js',
-    path: path.resolve(__dirname, '../dev')
+    path: path.resolve(__dirname, '../demo')
   },
   module: {
     rules: [

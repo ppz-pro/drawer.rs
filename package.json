@@ -5,7 +5,7 @@
   "main": "index.js",
   "files": ["index.js"],
   "scripts": {
-    "dev": "webpack serve --config ./build/dev.js"
+    "demo": "webpack serve --config ./build/demo.js"
   },
   "keywords": [
     "ppz"
