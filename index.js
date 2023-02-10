@@ -4,7 +4,7 @@ export
 function useExpand(defaultValue = true) {
   const [expand, setExpand] = useState(defaultValue)
   return {
-    value: expand,
+    expand,
     toggle: () => setExpand(!expand),
     set: setExpand
   }
@@ -41,8 +41,8 @@ function Drawer({
         if(y)
           outerStyle().height = null // 取消高度限制
         const rect = innerRef.current.getBoundingClientRect()
-        let width = rect.right - rect.left
-        let height = rect.bottom - rect.top
+        let width = rect.right - rect.left + 'px'
+        let height = rect.bottom - rect.top + 'px'
         // FLIP.Inverse
         if(x) {
           outerStyle().width = 0
@@ -88,31 +88,30 @@ function Drawer({
     animate()
   }, [expand])
 
-  return <div
-    className = {className}
-    ref = {outerRef}
-    style = {{
-      overflow: 'hidden'
-    }}
-  >
-    <div
-      ref = {innerRef}
-      style = {{
-        overflow: 'hidden' // 包住内部元素的 margin
-      }}
-    >{children}</div>
-  </div>
+  return React.createElement(
+    'div',
+    {
+      className,
+      ref: outerRef, 
+      style: {
+        overflow: 'hidden'
+      }
+    },
+    React.createElement(
+      'div',
+      {
+        ref: innerRef,
+        style: {
+          overflow: 'hidden' // 包住内部元素的 margin
+        }
+      },
+      children
+    )
+  )
 }
 
 function nextFrame() {
   return new Promise(res => {
     requestAnimationFrame(res)
-  })
-}
-
-function sleep(duration) {
-  duration = duration * 1000
-  return new Promise(res => {
-    setTimeout(res, duration)
   })
 }

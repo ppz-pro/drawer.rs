@@ -14,10 +14,10 @@ function Vertical() {
   let state = useExpand(true)
   return <section>
     <h1>纵向</h1>
-    <button onClick = {state.toggle}>expand: {String(state.value)}</button>
+    <button onClick = {state.toggle}>expand: {String(state.expand)}</button>
     <Drawer
       className = "drawer"
-      expand = {state.value}
+      expand = {state.expand}
       y = {true}
     >
       <ul>
@@ -34,10 +34,10 @@ function Horizontal() {
   let state = useExpand(true)
   return <section>
     <h1>横向</h1>
-    <button onClick = {state.toggle}>expand: {String(state.value)}</button>
+    <button onClick = {state.toggle}>expand: {String(state.expand)}</button>
     <Drawer
       className = "drawer"
-      expand = {state.value}
+      expand = {state.expand}
       x = {true}
     >
       <ul>
@@ -54,10 +54,10 @@ function Double() {
   let state = useExpand(true)
   return <section>
     <h1>双向</h1>
-    <button onClick = {state.toggle}>expand: {String(state.value)}</button>
+    <button onClick = {state.toggle}>expand: {String(state.expand)}</button>
     <Drawer
       className = "drawer"
-      expand = {state.value}
+      expand = {state.expand}
       x = {true}
       y = {true}
     >
