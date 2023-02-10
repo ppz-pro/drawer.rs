@@ -10,6 +10,17 @@ function useExpand(defaultValue = true) {
   }
 }
 
+{ // TODO: useNonreactive 给组件以“非状态”数据
+  let lastID = 0
+  // 给每个实例搞一个不变的 id
+  var useInstanceID = function() {
+    const [id] = useState(() => lastID++)
+    return id
+  }
+}
+
+const animatingMap = new Map() // <instanceID, animatingNum: 未结束的动画个数>
+
 export
 function Drawer({
   className,
@@ -20,6 +31,11 @@ function Drawer({
   expand,
   children
 }) {
+  const instanceID = useInstanceID()
+  // TODO：找更好的方案
+  if(animatingMap[instanceID] === undefined) // 给未设置的设置
+    animatingMap[instanceID] = 0
+
   if(!x && !y)
     console.error('x 和 y 至少设置一个，否则抽屉无法伸缩')
   
@@ -32,7 +48,8 @@ function Drawer({
 
   useEffect(() => {
     async function animate() {
-      outerStyle().transition = null
+      outerStyle().transition = null // 清空过度
+      animatingMap[instanceID]++ // 有新动画了，+1
       if(expand) { // 展开
         // FLIP.First 宽高都为零
         // FLIP.Last
@@ -63,8 +80,8 @@ function Drawer({
         // 闭合
         // FLIP.First
         const rect = innerRef.current.getBoundingClientRect()
-        let width = rect.right - rect.left
-        let height = rect.bottom - rect.top
+        let width = rect.right - rect.left + 'px'
+        let height = rect.bottom - rect.top + 'px'
         // FLIP.Last 宽高都为零
         // FLIP.Inverse
         if(x) {
@@ -83,6 +100,23 @@ function Drawer({
           outerStyle().width = 0
         if(y)
           outerStyle().height = 0
+      }
+
+      await sleep(duration)
+      // 等到动画结束，-1
+      animatingMap[instanceID]--
+      if(animatingMap[instanceID] == 0) { // 动画全播完了
+        outerStyle().transition = null // 把过度删掉
+        if(expand) { // 如果是展开状态，把限宽、限高删掉
+          if(x) {
+            outerStyle().width = null
+            innerStyle().width = null
+          }
+          if(y) {
+            outerStyle().height = null
+            innerStyle().height = null
+          }
+        }
       }
     }
     animate()
@@ -113,5 +147,11 @@ function Drawer({
 function nextFrame() {
   return new Promise(res => {
     requestAnimationFrame(res)
+  })
+}
+
+function sleep(duration) {
+  return new Promise(res => {
+    setTimeout(res, duration * 1000)
   })
 }
