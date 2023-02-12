@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useState } from 'react'
 
 export
 function useExpand(defaultValue = true) {
@@ -10,148 +10,136 @@ function useExpand(defaultValue = true) {
   }
 }
 
-{ // TODO: useNonreactive 给组件以“非状态”数据
-  let lastID = 0
-  // 给每个实例搞一个不变的 id
-  var useInstanceID = function() {
-    const [id] = useState(() => lastID++)
-    return id
+/**
+ * 抽屉盒子
+ * + 通过 outer 元素，调用 animate 方法，实现动画
+ * + 通过 inner 元素，保持动画播放时（及闭合动画后），内部元素不会因为 outer 尺寸变化而受到挤压
+ */
+export
+class Drawer extends React.Component {
+  constructor(props) {
+    if(!props.x && !props.y)
+      console.error('x 和 y 至少设置一个，否则抽屉无法伸缩')
+    super(props)
+    this.animation = null
+    this.outerRef = React.createRef()
+    this.innerRef = React.createRef()
+  }
+
+  async componentDidUpdate(prevProp) {
+    if(prevProp.expand != this.props.expand) { // 展开 <=> 闭合
+      const innerStyle = () => this.innerRef.current.style
+      const outerStyle = () => this.outerRef.current.style
+
+      // 初始状态
+      let rect = this.outerRef.current.getBoundingClientRect()
+      const first = {}
+      if(this.props.x)
+        first.width = rect.right - rect.left + 'px'
+      if(this.props.y)
+        first.height = rect.bottom - rect.top + 'px'
+
+      // 取消正在播放的动画
+      if(this.animation)
+        this.animation.cancel()
+
+      // 设置和获取最终状态
+      const last = {}
+      if(this.props.expand) { // 展开
+        // 设置最终状态
+        if(this.props.x)
+          outerStyle().width = null // 取消宽度限制
+        if(this.props.y)
+          outerStyle().height = null // 取消高度限制
+        // 获取最终状态
+        const lastRect = this.outerRef.current.getBoundingClientRect()
+        if(this.props.x)
+          last.width = lastRect.right - lastRect.left + 'px'
+        if(this.props.y)
+          last.height = lastRect.bottom - lastRect.top + 'px'
+      } else { // 闭合
+        if(this.props.x) {
+          outerStyle().width = 0
+          last.width = 0
+        }
+        if(this.props.y) {
+          outerStyle().height = 0
+          last.height = 0
+        }
+      }
+
+      // 动画开始前，保持 inner 形状
+      if(!this.animation) { // 如果动画正在播放，则形状已经固定
+        if(this.props.x)
+          innerStyle().width = this.props.expand ? last.width : first.width
+        if(this.props.y)
+          innerStyle().height = this.props.expand ? last.height : first.height
+      }
+
+      // 播放！
+      let animation = // 当前作用域保存一个引用
+      this.animation = // 实例上的更新（顺便抛弃旧的 animation）
+      this.outerRef.current.animate(
+        [first, last],
+        {
+          duration: this.props.duration,
+          easing: this.props.timingFunction
+        }
+      )
+
+      // 等到动画结束
+      await sleep(this.props.duration)
+      if(animation == this.animation) {
+        // 如果 this.animation 没变，说明没有“正在进行的动画”，此时需要清除动画产生的东西
+        this.animation = null
+        if(this.props.expand) { // 展开后，取消 inner 固定
+          if(this.props.x)
+            innerStyle().width = null
+          if(this.props.y)
+            innerStyle().height = null
+        } // 闭合后，保持原 inner 固定
+      }
+      // 没有 else：如果 this.animation 变了，那么就让后面的动画处理
+    }
+  }
+
+  render() {
+    return React.createElement(
+      'div',
+      {
+        className: this.props.className,
+        ref: this.outerRef, 
+        style: {
+          overflow: 'hidden',
+          ...this.props.style
+        }
+      },
+      React.createElement(
+        'div',
+        {
+          ref: this.innerRef,
+          style: {
+            overflow: 'hidden' // 包住内部元素的 margin
+          }
+        },
+        this.props.children
+      )
+    )
   }
 }
 
-const animatingMap = new Map() // <instanceID, animatingNum: 未结束的动画个数>
-
-export
-function Drawer({
-  className,
-  x,
-  y,
-  duration = .3,
-  timingFunction = 'ease',
-  expand,
-  children
-}) {
-  const instanceID = useInstanceID()
-  // TODO：找更好的方案
-  if(animatingMap[instanceID] === undefined) // 给未设置的设置
-    animatingMap[instanceID] = 0
-
-  if(!x && !y)
-    console.error('x 和 y 至少设置一个，否则抽屉无法伸缩')
-  
-  const outerRef = useRef()
-  const outerStyle = () => outerRef.current.style
-  const innerRef = useRef()
-  const innerStyle = () => innerRef.current.style
-
-  const Transition = () => duration + 's all ' + timingFunction
-
-  useEffect(() => {
-    async function animate() {
-      outerStyle().transition = null // 清空过度
-      animatingMap[instanceID]++ // 有新动画了，+1
-      if(expand) { // 展开
-        // FLIP.First 宽高都为零
-        // FLIP.Last
-        if(x)
-          outerStyle().width = null // 取消宽度限制
-        if(y)
-          outerStyle().height = null // 取消高度限制
-        const rect = innerRef.current.getBoundingClientRect()
-        let width = rect.right - rect.left + 'px'
-        let height = rect.bottom - rect.top + 'px'
-        // FLIP.Inverse
-        if(x) {
-          outerStyle().width = 0
-          innerStyle().width = width // 保持内部元素形状及排列
-        }
-        if(y) {
-          outerStyle().height = 0
-          innerStyle().height = height
-        }
-        outerStyle().transition = Transition()
-        // FLIP.Play
-        await nextFrame()
-        if(x)
-          outerStyle().width = width
-        if(y)
-          outerStyle().height = height
-      } else {
-        // 闭合
-        // FLIP.First
-        const rect = innerRef.current.getBoundingClientRect()
-        let width = rect.right - rect.left + 'px'
-        let height = rect.bottom - rect.top + 'px'
-        // FLIP.Last 宽高都为零
-        // FLIP.Inverse
-        if(x) {
-          outerStyle().width = width
-          innerStyle().width = width
-        }
-        if(y) {
-          outerStyle().height = height
-          innerStyle().height = height
-        }
-        outerStyle().transition = Transition()
-        
-        // FLIP.Play
-        await nextFrame()
-        if(x)
-          outerStyle().width = 0
-        if(y)
-          outerStyle().height = 0
-      }
-
-      await sleep(duration)
-      // 等到动画结束，-1
-      animatingMap[instanceID]--
-      if(animatingMap[instanceID] == 0) { // 动画全播完了
-        outerStyle().transition = null // 把过度删掉
-        if(expand) { // 如果是展开状态，把限宽、限高删掉
-          if(x) {
-            outerStyle().width = null
-            innerStyle().width = null
-          }
-          if(y) {
-            outerStyle().height = null
-            innerStyle().height = null
-          }
-        }
-      }
-    }
-    animate()
-  }, [expand])
-
-  return React.createElement(
-    'div',
-    {
-      className,
-      ref: outerRef, 
-      style: {
-        overflow: 'hidden'
-      }
-    },
-    React.createElement(
-      'div',
-      {
-        ref: innerRef,
-        style: {
-          overflow: 'hidden' // 包住内部元素的 margin
-        }
-      },
-      children
-    )
-  )
-}
-
-function nextFrame() {
-  return new Promise(res => {
-    requestAnimationFrame(res)
-  })
+Drawer.defaultProps = {
+  duration: 300,
+  timingFunction: 'ease',
+  // className,
+  // style,
+  // x,
+  // y,
+  // expand
 }
 
 function sleep(duration) {
   return new Promise(res => {
-    setTimeout(res, duration * 1000)
+    setTimeout(res, duration)
   })
 }
