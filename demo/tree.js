@@ -53,6 +53,7 @@ function Label({ level, expand, loading, length }) {
     <span style = {style}>length: {String(length)}</span>
   </>
 }
+
 function useChildren() {
   const [result, set] = useState()
   return [
@@ -61,7 +62,7 @@ function useChildren() {
       await new Promise(res => {
         setTimeout(res, 1000)
       })
-      const size = Math.floor(Math.random() * 5)
+      const size = Math.floor(Math.random() * 5) + 1
       const result = []
       for(let i=0; i<size; i++)
         result.push(i)
