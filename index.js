@@ -103,6 +103,21 @@ class Drawer extends React.Component {
     }
   }
 
+  async componentDidMount() {
+    const { x, y, expand } = this.props
+    if(!expand) { // 初始状态为闭合时
+      const innerRect = this.innerRef.current.getBoundingClientRect()
+      if(x) {
+        this.innerRef.current.style.width = innerRect.right - innerRect.left + 'px'
+        this.outerRef.current.style.width = 0
+      }
+      if(y) {
+        this.innerRef.current.style.height = innerRect.bottom - innerRect.top + 'px'
+        this.outerRef.current.style.height = 0
+      }
+    }
+  }
+
   render() {
     return React.createElement(
       'div',

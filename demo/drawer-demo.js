@@ -11,7 +11,7 @@ function App() {
 }
 
 function Vertical() {
-  let state = useExpand(true)
+  let state = useExpand(false)
   return <section>
     <h1>纵向</h1>
     <button onClick = {state.toggle}>expand: {String(state.expand)}</button>
@@ -31,7 +31,7 @@ function Vertical() {
 }
 
 function Horizontal() {
-  let state = useExpand(true)
+  let state = useExpand(false)
   return <section>
     <h1>横向</h1>
     <button onClick = {state.toggle}>expand: {String(state.expand)}</button>
