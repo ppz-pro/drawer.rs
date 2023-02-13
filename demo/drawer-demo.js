@@ -1,5 +1,6 @@
 import React from 'react'
 import { Drawer, useExpand } from '../index'
+import Tree from './tree'
 
 export default
 function App() {
@@ -7,6 +8,11 @@ function App() {
     <Vertical />
     <Horizontal />
     <Double />
+
+    <div>
+      <h1>Tree</h1>
+      <Tree />
+    </div>
   </div>
 }
 
@@ -31,7 +37,7 @@ function Vertical() {
 }
 
 function Horizontal() {
-  let state = useExpand(false)
+  let state = useExpand()
   return <section>
     <h1>横向</h1>
     <button onClick = {state.toggle}>expand: {String(state.expand)}</button>

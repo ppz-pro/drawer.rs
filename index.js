@@ -47,10 +47,14 @@ class Drawer extends React.Component {
       const last = {}
       if(this.props.expand) { // 展开
         // 设置最终状态
-        if(this.props.x)
+        if(this.props.x) {
+          innerStyle().width = null
           outerStyle().width = null // 取消宽度限制
-        if(this.props.y)
+        }
+        if(this.props.y) {
+          innerStyle().height = null
           outerStyle().height = null // 取消高度限制
+        }
         // 获取最终状态
         const lastRect = this.outerRef.current.getBoundingClientRect()
         if(this.props.x)
