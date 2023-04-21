@@ -3,6 +3,8 @@
 + 展开
 + 闭合
 
+> 特别适用于宽高**不确定**的容器元素。如果你的容器尺寸是固定的，那么仅使用 css transition 就可以实现抽屉。
+
 [demo](https://ppz-pro.github.io/drawer.rs/demo/)
 
 ## 安装
