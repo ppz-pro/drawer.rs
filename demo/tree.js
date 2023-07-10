@@ -1,36 +1,46 @@
-import React, { useState } from 'react'
-import { Drawer, useExpand } from '../index'
+import { useState } from 'react'
+import { E } from '@ppzp/utils.rc'
+import { Drawer, useExpand } from '../index.js'
 
 export default
 function Tree({ level = 0 }) {
   const [children, loadChildren] = useChildren()
   const drawer = useExpand(false)
   const [loading, setLoading] = useState(0)
-  return <div className = 'tree'>
-    <label
-      onClick = {async () => {
-        if(loading == 1) return
+  return E({ plass: 'tree' },
+    E.label(
+      {
+        async onClick() {
+          if(loading == 1) return
 
-        if(!drawer.expand && !children) {
-          setLoading(1)
-          await loadChildren()
-          setLoading(2)
+          if(!drawer.expand && !children) {
+            setLoading(1)
+            await loadChildren()
+            setLoading(2)
+          }
+          drawer.toggle()
+        },
+        style: {
+          paddingLeft: level + 'em'
         }
-        drawer.toggle()
-      }}
-      style = {{
-        paddingLeft: level + 'em'
-      }}
-    >
-      <Label level = {level} expand = {drawer.expand} loading = {loading} length = {children?.length ?? null} />
-    </label>
-    <Drawer
-      expand = {drawer.expand}
-      y = {true}
-    >{children?.map(item =>
-      <Tree level = {level + 1} key = {item} />
-    )}</Drawer>
-  </div>
+      },
+      E(Label, {
+        level,
+        expand: drawer.expand,
+        loading,
+        length: children?.length ?? null
+      })
+    ),
+    E(Drawer,
+      {
+        expand: drawer.expand,
+        y: true
+      },
+      children?.map(item =>
+        E(Tree, { level: level + 1, key: item })
+      )
+    )
+  )
 }
 
 function Label({ level, expand, loading, length }) {
@@ -42,16 +52,18 @@ function Label({ level, expand, loading, length }) {
     background: '#eee',
     marginRight: '1em'
   }
-  return <>
-    <span style = {style}>level: {level}</span>
-    <span style = {style}>expand: {String(expand)}</span>
-    <span style = {style}>{{
-      0: '未加载',
-      1: '加载中',
-      2: '已加载'
-    }[loading]}</span>
-    <span style = {style}>length: {String(length)}</span>
-  </>
+  return E._(
+    E.span({ style }, 'level: ' + level),
+    E.span({ style }, 'expand: ' + expand),
+    E.span({ style },
+      {
+        0: '未加载',
+        1: '加载中',
+        2: '已加载'
+      }[loading]
+    ),
+    E.span({ style }, 'length: ' + length)
+  )
 }
 
 function useChildren() {

@@ -1,12 +1,36 @@
-<style>
-body {
-  padding: 1em 2em;
-}
-.drawer {
-  background: rgba(0, 0, 0, .1);
-}
-</style>
-<a href="https://github.com/ppz-pro/drawer.rs/tree/main/demo">源码</a>
- | <a href="https://github.com/ppz-pro/drawer.rs">github</a>
-<div id="app"></div>
-<script src="./app.dist.js"></script>
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <title>@ppzp/drawer.rc</title>
+    <style>
+      body {
+        padding: 1em 2em;
+      }
+      .drawer {
+        background: rgba(0, 0, 0, .1);
+      }
+    </style>
+  </head>
+  <body>
+    <a href="https://github.com/ppz-pro/drawer.rs/tree/main/demo">源码</a>
+    | <a href="https://github.com/ppz-pro/drawer.rs">github</a>
+    <div id="app"></div>
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://unpkg.com/@xueershixi/react@18.2.1/react.development.js",
+          "react-dom": "https://unpkg.com/@xueershixi/react@18.2.1/react-dom.development.js",
+          "@ppzp/utils.rc": "https://unpkg.com/@ppzp/utils.rc@0.2.2"
+        }
+      }
+    </script>
+    <script type="module">
+      import React from 'react'
+      import ReactDOM from 'react-dom'
+      import { E } from '@ppzp/utils.rc'
+      import Demo from './drawer-demo.js'
+
+      ReactDOM.createRoot(document.getElementById('app')).render(E(Demo))
+    </script>
+  </body>
+</html>
