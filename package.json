@@ -1,13 +1,9 @@
 {
   "name": "drawer.rc",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "",
   "main": "index.js",
   "files": ["index.js"],
-  "scripts": {
-    "demo": "webpack serve --config ./build/demo.js",
-    "build-demo": "webpack --config ./build/build-demo.js"
-  },
   "keywords": [
     "ppz"
   ],
@@ -16,12 +12,5 @@
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
-  },
-  "devDependencies": {
-    "@swc/core": "^1.3.32",
-    "swc-loader": "^0.2.3",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "^4.11.1"
   }
 }
